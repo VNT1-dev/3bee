@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3Bee - Presentazione Aziendale Agritech & IA</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #070B09;
+            --surface-glass: rgba(18, 26, 21, 0.65);
+            --surface-glass-card: rgba(26, 36, 30, 0.85);
+            --glass-border: rgba(255, 184, 0, 0.25);
+            --primary: #FFB800;
+            --primary-glow: rgba(255, 184, 0, 0.35);
+            --secondary: #2EC4B6;
+            --text-main: #F1F5F9;
+            --text-muted: #94A3B8;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --shadow: 0 20px 40px rgba(0,0,0,0.6);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* CANVAS PER API E SFONDO */
+        #bees-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* FLOATING EDIT BUTTONS */
+        .edit-controls {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 2000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-toggle-btn {
+            background: rgba(255, 184, 0, 0.85);
+            backdrop-filter: blur(10px);
+            color: #000;
+            border: 1px solid var(--primary);
+            padding: 0.9rem 1.6rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 0 25px var(--primary-glow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .edit-toggle-btn:hover {
+            transform: scale(1.05);
+            background: var(--primary);
+            box-shadow: 0 0 35px rgba(255, 184, 0, 0.6);
+        }
+
+        .reset-btn {
+            background: rgba(231, 29, 54, 0.85);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            border: 1px solid #FF334B;
+            padding: 0.9rem 1.4rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+            background: #E71D36;
+        }
+
+        .edit-mode-active .reset-btn {
+            display: flex;
+        }
+
+        .edit-mode-active [contenteditable="true"] {
+            outline: 2px dashed var(--primary) !important;
+            background: rgba(255, 184, 0, 0.12);
+            border-radius: 6px;
+            padding: 2px 6px;
+        }
+
+        /* HEADER & NAVIGATION */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 15, 13, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            text-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 0.8rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.6rem 1.1rem;
+            border-radius: 30px;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            background: rgba(255, 184, 0, 0.1);
+            border-color: var(--glass-border);
+            backdrop-filter: blur(8px);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            position: relative;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 1.5rem 4rem 1.5rem;
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            max-width: 900px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            padding: 3.5rem 2.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.3rem, 5vw, 3.8rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #FFFFFF 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--primary);
+            color: #000;
+            padding: 1rem 2.2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: var(--transition);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 45px rgba(255, 184, 0, 0.6);
+        }
+
+        /* CONTAINER & SECTIONS */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 6rem 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        section {
+            background: var(--surface-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: var(--radius-lg);
+            padding: 3.5rem;
+            margin-bottom: 4rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
+            scroll-margin-top: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .section-title .icon-wrap {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 184, 0, 0.12);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.4rem;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(8px);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .img-card {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+        }
+
+        .img-card img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.9);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .img-card:hover img {
+            transform: scale(1.03);
+            filter: brightness(1.05);
+        }
+
+        .upload-btn {
+            display: none;
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        .edit-mode-active .upload-btn {
+            display: block;
+        }
+
+        .info-box {
+            background: var(--surface-glass-card);
+            backdrop-filter: blur(12px);
+            padding: 1.8rem;
+            border-radius: var(--radius-md);
+            border-left: 5px solid var(--primary);
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+            border-right: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .info-box h4 {
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* PUNTO 2 - SCHEDE ACCORDION */
+        .tech-accordion {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.8rem;
+            margin-top: 2rem;
+        }
+
+        .tech-item {
+            background: var(--surface-glass-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tech-header {
+            padding: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            z-index: 5;
+            background: transparent;
+            border-radius: var(--radius-md);
+        }
+
+        .tech-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tech-header .tech-icon {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .tech-header h4 {
+            color: var(--text-main);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .tech-arrow {
+            color: var(--primary);
+            font-size: 1.1rem;
+            transition: transform 0.4s ease;
+        }
+
+        .tech-item.active .tech-arrow {
+            transform: rotate(180deg);
+        }
+
+        .tech-item.active {
+            border-color: var(--primary);
+            box-shadow: 0 15px 35px var(--primary-glow);
+            background: rgba(26, 36, 30, 0.92);
+        }
+
+        .tech-body {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0 1.8rem;
+            transition: max-height 0.4s cubic-bezier(0, 1, 0, 1), padding 0.4s ease;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .tech-item.active .tech-body {
+            max-height: 350px;
+            padding: 0.5rem 1.8rem 1.8rem 1.8rem;
+        }
+
+        /* PROS & CONS */
+        .pros-cons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .pc-card {
+            padding: 2.2rem;
+            border-radius: var(--radius-md);
+            background: var(--surface-glass-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .pc-card.pros {
+            border-top: 5px solid #2EC4B6;
+        }
+
+        .pc-card.cons {
+            border-top: 5px solid #E71D36;
+        }
+
+        .pc-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pc-card.pros h3 { color: #2EC4B6; }
+        .pc-card.cons h3 { color: #E71D36; }
+
+        .pc-card ul {
+            list-style: none;
+        }
+
+        .pc-card ul li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .pc-card.pros ul li::before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #2EC4B6;
+        }
+
+        .pc-card.cons ul li::before {
+            content: "\f00d";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #E71D36;
+        }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(255, 184, 0, 0.1), rgba(46, 196, 182, 0.08));
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--primary);
+            padding: 2.5rem;
+            border-radius: var(--radius-md);
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        .highlight-box h4 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* FOOTER */
+        footer {
+            background: rgba(5, 8, 6, 0.75);
+            backdrop-filter: blur(16px);
+            color: var(--text-muted);
+            text-align: center;
+            padding: 3rem 1.5rem;
+            border-top: 1px solid var(--glass-border);
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (max-width: 900px) {
+            .content-grid, .pros-cons-grid {
+                grid-template-columns: 1fr;
+            }
+            .nav-links {
+                display: none;
+            }
+            section {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CANVAS SFONDO API E ARNIE -->
+    <canvas id="bees-canvas"></canvas>
+
+    <!-- BOTTONI FLOATING MODALITÀ EDIT E RESET -->
+    <div class="edit-controls">
+        <button class="reset-btn" id="reset-btn" onclick="resetToDefault()">
+            <i class="fa-solid fa-rotate-left"></i> Ripristina Originale
+        </button>
+        <button class="edit-toggle-btn" id="edit-btn" onclick="toggleEditMode()">
+            <i class="fa-solid fa-pen-to-square"></i> Attiva Modifica
+        </button>
+    </div>
+
+    <!-- NAVIGATORE -->
+    <header>
+        <nav>
+            <a href="#" class="logo">
+                <i class="fa-solid fa-bee"></i> 3Bee
+            </a>
+            <ul class="nav-links">
+                <li><a href="#azienda">1. L'Azienda & Il Problema</a></li>
+                <li><a href="#tecnologia">2. Le Tecnologie</a></li>
+                <li><a href="#funzionamento">3. Come Funziona</a></li>
+                <li><a href="#vantaggi-criticita">4. Pro & Contro</a></li>
+                <li><a href="#considerazioni">5. Sul Nostro Territorio</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1 class="editable" id="text-hero-h1">Salvare le Api e la Natura con la Tecnologia</h1>
+            <p class="editable" id="text-hero-p">Come l'azienda 3Bee usa sensori intelligenti e satelliti per proteggere le api, migliorare l'agricoltura e salvare l'ambiente.</p>
+            <a href="#azienda" class="btn"><i class="fa-solid fa-arrow-down"></i> Inizia l'Esposizione</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- 1. NOME AZIENDA E PROBLEMA -->
+        <section id="azienda">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="icon-wrap"><i class="fa-solid fa-building"></i></span>
+                    <span class="editable" id="text-sec1-title">1. Chi è 3Bee e Qual è il Problema</span>
+                </h2>
+            </div>
+            
+            <div class="content-grid">
+                <div>
+                    <h3 style="font-size: 1.6rem; color: var(--primary); margin-bottom: 1rem;">
+                        <strong class="editable" id="text-sec1-name">3Bee S.r.l.</strong>
+                    </h3>
+                    <p class="editable" id="text-sec1-desc" style="color: var(--text-muted);">
+                        3Bee è un'azienda italiana che ha creato tecnologie innovative per controllare la salute delle api e proteggere la biodiversità dei nostri ambienti.
+                    </p>
+                    
+                    <div class="info-box">
+                        <h4><i class="fa-solid fa-triangle-exclamation"></i> <span class="editable" id="text-sec1-prob-h4">Il Problema: La Moria delle Api</span></h4>
+                        <p class="editable" id="text-sec1-prob-p" style="color: var(--text-muted); font-size: 0.95rem;">
+                            <strong>Perché le api sono in pericolo?</strong> Più dell'80% delle piante e del cibo che mangiamo dipende dall'impollinazione delle api. Purtroppo, a causa dei pesticidi, dei cambiamenti climatici e della perdita di fiori e boschi, intere famiglie di api stanno morendo. Senza di loro, anche l'agricoltura rischia di fermarsi.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="img-card">
+                    <img id="img-sec1" src="https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&w=1000&q=80" alt="Api e Biodiversità 3Bee" onclick="changeImageUrl(this)">
+                    <button class="upload-btn" onclick="triggerFileUpload(this)"><i class="fa-solid fa-upload"></i> Carica Foto</button>
+                    <input type="file" accept="image/*" style="display:none;" onchange="loadLocalImage(event, this)">
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. TECNOLOGIA E INNOVAZIONI -->
+        <section id="tecnologia">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="icon-wrap"><i class="fa-solid fa-microchip"></i></span>
+                    <span class="editable" id="text-sec2-title">2. Le Strumentazioni e Tecnologie Usate</span>
+                </h2>
+            </div>
+
+            <p class="editable" id="text-sec2-sub" style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                <em>Clicca su ogni strumento per scoprirne le funzioni:</em>
+            </p>
+
+            <div class="tech-accordion">
+                <!-- SCHEDA 1 -->
+                <div class="tech-item" onclick="toggleTech(this)">
+                    <div class="tech-header">
+                        <div class="tech-header-left">
+                            <i class="fa-solid fa-wifi tech-icon"></i>
+                            <h4 class="editable" id="text-tech1-h4">Hive-Tech (Sensori per Arnie)</h4>
+                        </div>
+                        <i class="fa-solid fa-chevron-down tech-arrow"></i>
+                    </div>
+
+                    <div class="tech-body">
+                        <p class="editable" id="text-tech1-p">È un piccolo sensore che si mette dentro l'arnia. Controlla continuamente il peso dell'alveare, la temperatura e i suoni delle api. Si ricarica da solo grazie a un piccolo pannello solare.</p>
+                    </div>
+                </div>
+
+                <!-- SCHEDA 2 -->
+                <div class="tech-item" onclick="toggleTech(this)">
+                    <div class="tech-header">
+                        <div class="tech-header-left">
+                            <i class="fa-solid fa-satellite tech-icon"></i>
+                            <h4 class="editable" id="text-tech2-h4">Flora Tech (Satelliti e Fiori)</h4>
+                        </div>
+                        <i class="fa-solid fa-chevron-down tech-arrow"></i>
+                    </div>
+
+                    <div class="tech-body">
+                        <p class="editable" id="text-tech2-p">Usa le immagini dei satelliti spaziali per controllare lo stato delle piante e capire quanta quantità di nettare è disponibile per le api nelle vicinanze.</p>
+                    </div>
+                </div>
+
+                <!-- SCHEDA 3 -->
+                <div class="tech-item" onclick="toggleTech(this)">
+                    <div class="tech-header">
+                        <div class="tech-header-left">
+                            <i class="fa-solid fa-wave-square tech-icon"></i>
+                            <h4 class="editable" id="text-tech3-h4">Spectrum (Ascolto dei Suoni)</h4>
+                        </div>
+                        <i class="fa-solid fa-chevron-down tech-arrow"></i>
+                    </div>
+
+                    <div class="tech-body">
+                        <p class="editable" id="text-tech3-p">Un sensore acustico collegato all'intelligenza artificiale che ascolta i ronzii nell'ambiente per contare e monitorare anche gli insetti selvatici che vivono nei campi.</p>
+                    </div>
+                </div>
+
+                <!-- SCHEDA 4 -->
+                <div class="tech-item" onclick="toggleTech(this)">
+                    <div class="tech-header">
+                        <div class="tech-header-left">
+                            <i class="fa-solid fa-chart-line tech-icon"></i>
+                            <h4 class="editable" id="text-tech4-h4">Elementa (Certificazioni Verdi)</h4>
+                        </div>
+                        <i class="fa-solid fa-chevron-down tech-arrow"></i>
+                    </div>
+
+                    <div class="tech-body">
+                        <p class="editable" id="text-tech4-p">Un programma che trasforma i dati raccolti in campo in veri e propri "Crediti di Biodiversità", aiutando le aziende a dimostrare quanto lavorano nel rispetto dell'ambiente.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. FUNZIONAMENTO -->
+        <section id="funzionamento">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="icon-wrap"><i class="fa-solid fa-gears"></i></span>
+                    <span class="editable" id="text-sec3-title">3. Come Funziona il Sistema (Passo dopo Passo)</span>
+                </h2>
+            </div>
+
+            <div class="content-grid">
+                <div class="img-card">
+                    <img id="img-sec3" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80" alt="Dashboard e Dati 3Bee" onclick="changeImageUrl(this)">
+                    <button class="upload-btn" onclick="triggerFileUpload(this)"><i class="fa-solid fa-upload"></i> Carica Foto</button>
+                    <input type="file" accept="image/*" style="display:none;" onchange="loadLocalImage(event, this)">
+                </div>
+
+                <div>
+                    <h3 style="color: var(--primary); margin-bottom: 1rem;" class="editable" id="text-sec3-sub">Le 4 Fasi del Lavoro</h3>
+                    <ol style="padding-left: 1.2rem; color: var(--text-muted);">
+                        <li style="margin-bottom: 1.2rem;">
+                            <strong style="color: var(--text-main);" class="editable" id="text-step1-t">1. Controllo nei Campi:</strong>
+                            <span class="editable" id="text-step1-d">I sensori controllano giorno e notte le arnie senza dare alcun fastidio alle api.</span>
+                        </li>
+                        <li style="margin-bottom: 1.2rem;">
+                            <strong style="color: var(--text-main);" class="editable" id="text-step2-t">2. Analisi dei Suoni:</strong>
+                            <span class="editable" id="text-step2-d">L'intelligenza artificiale capisce se l'alveare sta bene o se c'è un problema (come la mancanza d'acqua o una malattia) studiando i cambiamenti del ronzio.</span>
+                        </li>
+                        <li style="margin-bottom: 1.2rem;">
+                            <strong style="color: var(--text-main);" class="editable" id="text-step3-t">3. Controllo dallo Spazio:</strong>
+                            <span class="editable" id="text-step3-d">I dati delle arnie vengono uniti alle mappe satellitari per vedere dove ci sono più fiori e nettare.</span>
+                        </li>
+                        <li>
+                            <strong style="color: var(--text-main);" class="editable" id="text-step4-t">4. Avvisi sul Telefono:</strong>
+                            <span class="editable" id="text-step4-d">Gli apicoltori e gli agricoltori ricevono aggiornamenti e consigli direttamente su una comoda App sullo smartphone.</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. VANTAGGI E CRITICITÀ -->
+        <section id="vantaggi-criticita">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="icon-wrap"><i class="fa-solid fa-scale-balanced"></i></span>
+                    <span class="editable" id="text-sec4-title">4. Vantaggi e Problemi da Risolvere</span>
+                </h2>
+            </div>
+
+            <div class="pros-cons-grid">
+                <div class="pc-card pros">
+                    <h3><i class="fa-solid fa-circle-check"></i> <span class="editable" id="text-pros-head">I Vantaggi</span></h3>
+                    <ul>
+                        <li class="editable" id="text-pro1"><strong>Più Raccolti:</strong> Le piante impollinate meglio producono più frutta e cibo.</li>
+                        <li class="editable" id="text-pro2"><strong>Meno Pesticidi:</strong> Aiuta gli agricoltori a non usare veleni quando le api sono fuori a lavorare.</li>
+                        <li class="editable" id="text-pro3"><strong>Meno Api morte:</strong> Si riducono del 30% le perdite di api durante l'inverno grazie agli allarmi in tempo.</li>
+                        <li class="editable" id="text-pro4"><strong>Prodotti Certificati:</strong> Aiuta a dimostrare che il miele e la frutta sono ottenuti nel rispetto totale della natura.</li>
+                    </ul>
+                </div>
+
+                <div class="pc-card cons">
+                    <h3><i class="fa-solid fa-circle-exclamation"></i> <span class="editable" id="text-cons-head">Le Difficoltà</span></h3>
+                    <ul>
+                        <li class="editable" id="text-con1"><strong>Costi Iniziali:</strong> Comprare e installare i sensori professionali richiede una spesa economica all'inizio.</li>
+                        <li class="editable" id="text-con2"><strong>Segnale Internet:</strong> In alcune zone di montagna o di campagna isolate, il segnale di rete può essere debole.</li>
+                        <li class="editable" id="text-con3"><strong>Cambiamento di Abitudini:</strong> Alcuni agricoltori più tradizionali possono fare fatica a passare ai sistemi digitali.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. IMPATTO LOCALE -->
+        <section id="considerazioni">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="icon-wrap"><i class="fa-solid fa-map-location-dot"></i></span>
+                    <span class="editable" id="text-sec5-title">5. Applicazione sul Nostro Territorio</span>
+                </h2>
+            </div>
+
+            <p class="editable" id="text-sec5-desc" style="color: var(--text-muted);">
+                Usare queste tecnologie nelle zone agricole della nostra zona (fatte di vigneti, oliveti e campi coltivati) porterebbe grandi benefici.
+            </p>
+
+            <div class="highlight-box">
+                <h4><i class="fa-solid fa-seedling"></i> <span class="editable" id="text-high-head">Cosa si potrebbe fare concretamente:</span></h4>
+                <ul style="padding-left: 1.5rem; color: var(--text-muted); margin-top: 10px;">
+                    <li style="margin-bottom: 0.8rem;" class="editable" id="text-high1">
+                        <strong style="color: var(--text-main);">Valorizzare i Prodotti Locali:</strong> Usare i sensori per certificare che nei campi non si usano sostanze dannose, vendendo meglio i prodotti italiani.
+                    </li>
+                    <li style="margin-bottom: 0.8rem;" class="editable" id="text-high2">
+                        <strong style="color: var(--text-main);">Più Fiori e Siepi:</strong> Seguire le mappe dei satelliti per piantare nuove zone verdi e fiori protetti ai bordi dei campi.
+                    </li>
+                    <li class="editable" id="text-high3">
+                        <strong style="color: var(--text-main);">Lavoro di Squadra:</strong> Aiutare agricoltori e apicoltori a collaborare insieme per proteggere l'ambiente della zona.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p class="editable" id="text-footer">&copy; 2026 Presentazione Scolastica - Progetto 3Bee & Sostenibilità Ambientale</p>
+    </footer>
+
+    <!-- SCRIPT LOCALSTORAGE, INTERATTIVITÀ E SIMULAZIONE API CON ARNIE E FIORI -->
+    <script>
+        const STORAGE_KEY = '3bee_presentation_data_v7';
+
+        function toggleTech(element) {
+            if (document.body.classList.contains('edit-mode-active')) return;
+            element.classList.toggle('active');
+        }
+
+        let isEditMode = false;
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const btn = document.getElementById('edit-btn');
+            const editables = document.querySelectorAll('.editable');
+
+            if (isEditMode) {
+                document.body.classList.add('edit-mode-active');
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salva Modifiche';
+                btn.style.background = '#2EC4B6';
+                editables.forEach(el => el.setAttribute('contenteditable', 'true'));
+            } else {
+                saveDataToStorage();
+                document.body.classList.remove('edit-mode-active');
+                btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Attiva Modifica';
+                btn.style.background = 'rgba(255, 184, 0, 0.85)';
+                editables.forEach(el => el.removeAttribute('contenteditable'));
+            }
+        }
+
+        function saveDataToStorage() {
+            const data = { texts: {}, images: {} };
+            document.querySelectorAll('.editable').forEach(el => {
+                if (el.id) data.texts[el.id] = el.innerHTML;
+            });
+            document.querySelectorAll('img[id]').forEach(img => {
+                data.images[img.id] = img.src;
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadDataFromStorage() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (!savedData) return;
+            try {
+                const data = JSON.parse(savedData);
+                if (data.texts) {
+                    Object.keys(data.texts).forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.innerHTML = data.texts[id];
+                    });
+                }
+                if (data.images) {
+                    Object.keys(data.images).forEach(id => {
+                        const img = document.getElementById(id);
+                        if (img) img.src = data.images[id];
+                    });
+                }
+            } catch (e) {
+                console.error("Errore caricamento dati:", e);
+            }
+        }
+
+        function resetToDefault() {
+            if (confirm("Ripristinare testi e immagini originali?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        function changeImageUrl(imgElement) {
+            if (!isEditMode) return;
+            const newUrl = prompt("Inserisci l'URL della nuova immagine:", imgElement.src);
+            if (newUrl && newUrl.trim() !== "") {
+                imgElement.src = newUrl;
+            }
+        }
+
+        function triggerFileUpload(btnElement) {
+            btnElement.nextElementSibling.click();
+        }
+
+        function loadLocalImage(event, inputElement) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = inputElement.parentElement.querySelector('img');
+                    if (img) img.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadDataFromStorage);
+
+        // CANVAS API E ARNIE GRANDI
+        const canvas = document.getElementById('bees-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        let flowers = [];
+        let hives = [];
+
+        function initEnvironment() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+
+            // Generazione Casette (Arnie) Grandi e Visibili nello Sfondo
+            hives = [];
+            const hiveCount = Math.max(2, Math.floor(width / 420));
+            for (let i = 0; i < hiveCount; i++) {
+                hives.push({
+                    x: (width / (hiveCount + 1)) * (i + 1) + (Math.random() * 60 - 30),
+                    y: Math.random() * (height - 300) + 150,
+                    width: 65,
+                    height: 75
+                });
+            }
+
+            // Generazione Fiori distanziati
+            flowers = [];
+            const flowerCount = Math.floor((width * height) / 130000) + 14;
+            let attempts = 0;
+
+            while (flowers.length < flowerCount && attempts < 600) {
+                attempts++;
+                const fx = Math.random() * (width - 140) + 70;
+                const fy = Math.random() * (height - 140) + 70;
+                const fSize = 11 + Math.random() * 6;
+
+                let safeFromHives = true;
+                for (let h of hives) {
+                    const dist = Math.hypot(fx - h.x, fy - h.y);
+                    if (dist < 110) {
+                        safeFromHives = false;
+                        break;
+                    }
+                }
+
+                if (safeFromHives) {
+                    flowers.push({
+                        x: fx,
+                        y: fy,
+                        color: Math.random() > 0.5 ? '#FFB800' : '#2EC4B6',
+                        petalCount: 5 + Math.floor(Math.random() * 3),
+                        size: fSize
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('resize', initEnvironment);
+
+        class BeeWorker {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.baseSize = 4.8;
+                this.size = this.baseSize;
+                this.speed = 1.3 + Math.random() * 1.4;
+                
+                this.state = 'SEEK_FLOWER';
+                this.target = null;
+                this.harvestTimer = 0;
+                this.hasNectar = false;
+
+                this.wingAngle = Math.random() * Math.PI;
+                this.wingSpeed = 0.4 + Math.random() * 0.2;
+                this.angle = 0;
+            }
+
+            update() {
+                this.wingAngle += this.wingSpeed;
+
+                if (this.state === 'SEEK_FLOWER') {
+                    if (this.size > this.baseSize) this.size -= 0.03;
+
+                    if (!this.target && flowers.length > 0) {
+                        this.target = flowers[Math.floor(Math.random() * flowers.length)];
+                    }
+                    if (this.target) {
+                        const dx = this.target.x - this.x;
+                        const dy = this.target.y - this.y;
+                        const dist = Math.hypot(dx, dy);
+
+                        if (dist < 12) {
+                            this.state = 'HARVESTING';
+                            this.harvestTimer = 90 + Math.random() * 50;
+                        } else {
+                            this.angle = Math.atan2(dy, dx);
+                            this.x += Math.cos(this.angle) * this.speed;
+                            this.y += Math.sin(this.angle) * this.speed;
+                        }
+                    }
+                } else if (this.state === 'HARVESTING') {
+                    this.harvestTimer--;
+                    this.x += (Math.random() - 0.5) * 0.6;
+                    this.y += (Math.random() - 0.5) * 0.6;
+
+                    if (this.size < this.baseSize * 1.75) {
+                        this.size += 0.025;
+                    }
+
+                    if (this.harvestTimer <= 0) {
+                        this.hasNectar = true;
+                        this.state = 'SEEK_HIVE';
+                        this.target = hives[Math.floor(Math.random() * hives.length)];
+                    }
+                } else if (this.state === 'SEEK_HIVE') {
+                    if (this.target) {
+                        const dx = this.target.x - this.x;
+                        const dy = this.target.y - this.y;
+                        const dist = Math.hypot(dx, dy);
+
+                        if (dist < 18) {
+                            this.hasNectar = false;
+                            this.state = 'SEEK_FLOWER';
+                            this.target = null;
+                        } else {
+                            this.angle = Math.atan2(dy, dx);
+                            this.x += Math.cos(this.angle) * (this.speed * 1.15);
+                            this.y += Math.sin(this.angle) * (this.speed * 1.15);
+                        }
+                    }
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+
+                // Ali
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+                const wingOffsetY = Math.sin(this.wingAngle) * 4;
+                ctx.beginPath();
+                ctx.ellipse(-1, -this.size + wingOffsetY, this.size * 0.6, this.size * 1.1, 0, 0, Math.PI * 2);
+                ctx.ellipse(-1, this.size - wingOffsetY, this.size * 0.6, this.size * 1.1, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Corpo dell'ape (luce e gonfiaggio sui fiori)
+                if (this.hasNectar || this.state === 'HARVESTING') {
+                    ctx.fillStyle = '#FFF176';
+                    ctx.shadowColor = '#FFD54F';
+                    ctx.shadowBlur = 18;
+                } else {
+                    ctx.fillStyle = '#FFB800';
+                    ctx.shadowColor = '#FFB800';
+                    ctx.shadowBlur = 6;
+                }
+
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.size * 1.3, this.size * 0.9, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Strisce nere
+                ctx.fillStyle = '#070B09';
+                ctx.shadowBlur = 0;
+                ctx.fillRect(-this.size * 0.3, -this.size * 0.7, this.size * 0.4, this.size * 1.4);
+                ctx.fillRect(this.size * 0.3, -this.size * 0.6, this.size * 0.3, this.size * 1.2);
+
+                ctx.restore();
+            }
+        }
+
+        function drawFlowers() {
+            flowers.forEach(f => {
+                ctx.save();
+                ctx.translate(f.x, f.y);
+                ctx.fillStyle = f.color;
+                ctx.globalAlpha = 0.45;
+
+                for (let i = 0; i < f.petalCount; i++) {
+                    const angle = (i * Math.PI * 2) / f.petalCount;
+                    ctx.beginPath();
+                    ctx.ellipse(Math.cos(angle) * (f.size * 0.8), Math.sin(angle) * (f.size * 0.8), f.size * 0.6, f.size * 0.3, angle, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.globalAlpha = 0.75;
+                ctx.fillStyle = '#FFF';
+                ctx.beginPath();
+                ctx.arc(0, 0, f.size * 0.35, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        function drawHives() {
+            hives.forEach(h => {
+                ctx.save();
+                ctx.translate(h.x, h.y);
+                ctx.globalAlpha = 0.85;
+
+                ctx.shadowColor = '#FFB800';
+                ctx.shadowBlur = 15;
+
+                // Arnia
+                ctx.fillStyle = '#D49228';
+                ctx.strokeStyle = '#FFB800';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(-h.width / 2, -h.height / 2, h.width, h.height, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.shadowBlur = 0;
+
+                // Stecche di legno
+                ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+                ctx.lineWidth = 1.5;
+                for (let yOffset = -h.height / 2 + 15; yOffset < h.height / 2; yOffset += 15) {
+                    ctx.beginPath();
+                    ctx.moveTo(-h.width / 2 + 3, yOffset);
+                    ctx.lineTo(h.width / 2 - 3, yOffset);
+                    ctx.stroke();
+                }
+
+                // Tetto arnia
+                ctx.fillStyle = '#8B4513';
+                ctx.beginPath();
+                ctx.moveTo(-h.width / 2 - 8, -h.height / 2);
+                ctx.lineTo(0, -h.height / 2 - 18);
+                ctx.lineTo(h.width / 2 + 8, -h.height / 2);
+                ctx.closePath();
+                ctx.fill();
+
+                // Base
+                ctx.fillStyle = '#5A2E0C';
+                ctx.fillRect(-h.width / 2 - 4, h.height / 2 - 2, h.width + 8, 8);
+
+                // Ingresso
+                ctx.fillStyle = '#070B09';
+                ctx.beginPath();
+                ctx.arc(0, 10, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            });
+        }
+
+        initEnvironment();
+        const beeWorkers = Array.from({ length: 35 }, () => new BeeWorker());
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            drawFlowers();
+            drawHives();
+
+            beeWorkers.forEach(bee => {
+                bee.update();
+                bee.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
